@@ -32,11 +32,11 @@ public class CameraArray : MonoBehaviour {
         Quaternion originRot = m_Origin.transform.localRotation;
         float x = 1.0f / m_Count[0];
         float y = 1.0f / m_Count[1];
-        yMin = (elementalWidth - PITCH )/ 2;
+        yMin = -PITCH/2;
         yMax = yMin + elementalWidth;
         for (int i = 0; i < m_Count[1] / 2; i++)
         {
-            xMin = (elementalWidth - PITCH) / 2;
+            xMin = -PITCH / 2;
             xMax = xMin + elementalWidth;
             for (int j = 0; j < m_Count[0] / 2; j++)
             {
