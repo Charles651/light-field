@@ -11,7 +11,7 @@ public class CameraArray : MonoBehaviour {
     public static float EYEBOX = 1.1f;
     public static float PITCH = 0.16f;
     public static float GAP = 0.5f;
-    public static float SCREEN_SIZE = 6.0f;
+    public static float SCREEN_SIZE = 4.95f;
     public static float PUPIL_DISTANCE = 6.5f;
     public static int PPI = 445;
     private float exitPupilLength;
