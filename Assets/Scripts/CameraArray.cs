@@ -5,13 +5,15 @@ using UnityEngine;
 public class CameraArray : MonoBehaviour {
     public GameObject m_Origin;
     //public GameObject m_Array;
-    private int[] m_Count = { 32,18 };
+    private int[] m_Count = { 10, 10 };
     
     //定义光学参数，单位cm
     public static float EYEBOX = 1.1f;
     public static float PITCH = 0.16f;
     public static float GAP = 0.5f;
-    public static int PPI = 445; 
+    public static float SCREEN_SIZE = 6.0f;
+    public static float PUPIL_DISTANCE = 6.5f;
+    public static int PPI = 445;
     private float exitPupilLength;
     private float elementalWidth;
     private float m_fieldOfView;
@@ -20,6 +22,8 @@ public class CameraArray : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        float pupDis = PUPIL_DISTANCE / (SCREEN_SIZE / Mathf.Sqrt(Mathf.Pow(16, 2) + Mathf.Pow(9, 2)) * 16 * 2.54f)/2;
+        float pixelSize = SCREEN_SIZE / Mathf.Sqrt(Mathf.Pow(16, 2) + Mathf.Pow(9, 2)) * 16 / 1920 * 2.54f;
         exitPupilLength  = EYEBOX / PITCH * GAP - GAP;
         elementalWidth = EYEBOX / exitPupilLength * GAP;
         m_fieldOfView = Mathf.Atan(EYEBOX / 2 / exitPupilLength) / Mathf.PI * 360;
@@ -30,20 +34,24 @@ public class CameraArray : MonoBehaviour {
         //m_Array = GameObject.Find("Array");
         Vector3 originPos = m_Origin.transform.localPosition;
         Quaternion originRot = m_Origin.transform.localRotation;
-        float x = 1.0f / m_Count[0];
-        float y = 1.0f / m_Count[1];
+        float x = elementalWidth / pixelSize / 1920;
+        float y = elementalWidth / pixelSize / 1080;
         yMin = -PITCH/2;
         yMax = yMin + elementalWidth;
-        for (int i = 0; i < m_Count[1] / 2; i++)
+        for (int i = 0; i < m_Count[1]; i++)
         {
             xMin = -PITCH / 2;
             xMax = xMin + elementalWidth;
-            for (int j = 0; j < m_Count[0] / 2; j++)
+            for (int j = 0; j < m_Count[0]; j++)
             {
-                CreatCamera(new Vector3(PITCH * (j + 0.5f), PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f, y * i + 0.5f, x, y), xMin, xMax, yMin, yMax);
-                CreatCamera(new Vector3(-PITCH * (j + 0.5f), PITCH * (i + 0.5f), 0), new Rect(-x * j + 0.5f, y * i + 0.5f, x, y), -xMax, -xMin, yMin, yMax);
-                CreatCamera(new Vector3(PITCH * (j + 0.5f), -PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f, -y * i + 0.5f, x, y), xMin, xMax, -yMax, -yMin);
-                CreatCamera(new Vector3(-PITCH * (j + 0.5f), -PITCH * (i + 0.5f), 0), new Rect(-x * j + 0.5f, -y * i + 0.5f, x, y), -xMax, -xMin, -yMax, -yMin);
+                CreatCamera(new Vector3(PITCH * (j + 0.5f) + PUPIL_DISTANCE / 2, PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f+pupDis, y * i + 0.5f, x, y), xMin, xMax, yMin, yMax);
+                CreatCamera(new Vector3(-PITCH * (j + 0.5f) + PUPIL_DISTANCE / 2, PITCH * (i + 0.5f), 0), new Rect(-x * (j + 1) + 0.5f + pupDis, y * i + 0.5f, x, y), -xMax, -xMin, yMin, yMax);
+                CreatCamera(new Vector3(PITCH * (j + 0.5f) + PUPIL_DISTANCE / 2, -PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f + pupDis, -y * (i + 1) + 0.5f, x, y), xMin, xMax, -yMax, -yMin);
+                CreatCamera(new Vector3(-PITCH * (j + 0.5f) + PUPIL_DISTANCE / 2, -PITCH * (i + 0.5f), 0), new Rect(-x * (j + 1) + 0.5f + pupDis, -y * (i + 1) + 0.5f, x, y), -xMax, -xMin, -yMax, -yMin);
+                CreatCamera(new Vector3(PITCH * (j + 0.5f) - PUPIL_DISTANCE / 2, PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f - pupDis, y * i + 0.5f, x, y), xMin, xMax, yMin, yMax);
+                CreatCamera(new Vector3(-PITCH * (j + 0.5f) - PUPIL_DISTANCE / 2, PITCH * (i + 0.5f), 0), new Rect(-x * (j + 1) + 0.5f - pupDis, y * i + 0.5f, x, y), -xMax, -xMin, yMin, yMax);
+                CreatCamera(new Vector3(PITCH * (j + 0.5f) - PUPIL_DISTANCE / 2, -PITCH * (i + 0.5f), 0), new Rect(x * j + 0.5f - pupDis, -y * (i + 1) + 0.5f, x, y), xMin, xMax, -yMax, -yMin);
+                CreatCamera(new Vector3(-PITCH * (j + 0.5f) - PUPIL_DISTANCE / 2, -PITCH * (i + 0.5f), 0), new Rect(-x * (j + 1) + 0.5f - pupDis, -y * (i + 1) + 0.5f, x, y), -xMax, -xMin, -yMax, -yMin);
                 xMin += elementalWidth - PITCH;
                 xMax += elementalWidth - PITCH;
             }
