@@ -3,7 +3,7 @@ using System.Collections;
 
 public class MoveController : MonoBehaviour {
 	public float Speed = 5.0f;
-    public float RotateSpeed = 5.0f;
+    public float RotateSpeed = 125.0f;
 
     //public void aScript otherscript;
     // Use this for initialization
@@ -13,7 +13,7 @@ public class MoveController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        float translation = Input.GetAxis("Vertical") * Speed;
+        float translation = Input.GetAxis("Vertical") * -Speed;
         float rotation = Input.GetAxis("Horizontal") * RotateSpeed;
         translation *= Time.deltaTime;
         rotation *= Time.deltaTime;

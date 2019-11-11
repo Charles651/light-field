@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Rotate : MonoBehaviour {
-    public float m_Speed;
+    public float m_Speed = 50.0f;
 	// Use this for initialization
 	void Start () {
-        m_Speed = 50.0f;
 	}
 	
 	// Update is called once per frame
