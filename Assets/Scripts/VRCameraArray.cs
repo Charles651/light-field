@@ -24,10 +24,10 @@ public class VRCameraArray : MonoBehaviour
     public int[] m_Resolution = { 1920, 1080 };
     #endregion
     #region 私有变量
-    private float exitPupilLength;
-    private float elementalSize;
+    private float imgWidth;
     private float fieldOfView;
     [SerializeField]
+    private float exitPupilLength;
     private Matrix4x4 tempMatrix;
     #endregion
 
@@ -39,8 +39,11 @@ public class VRCameraArray : MonoBehaviour
         float pixelSize = m_ScreenSize * 2.54f / Mathf.Sqrt(Mathf.Pow(m_Resolution[0], 2) + Mathf.Pow(m_Resolution[1], 2));
         // float pixelSize = 0.000825f;
         exitPupilLength = m_EyeBox / m_Pitch * m_Gap - m_Gap;
-        elementalSize = m_EyeBox / exitPupilLength * m_Gap;
+        Debug.Log("Exit pupil length: " + exitPupilLength);
+        imgWidth = m_EyeBox / exitPupilLength * m_Gap;
+        Debug.Log("image width = " + imgWidth);
         fieldOfView = Mathf.Atan(m_EyeBox / 2 / exitPupilLength) / Mathf.PI * 360;
+        Debug.Log("FOV: " + fieldOfView);
 
         // float xMin, yMin, xMax, yMax;
         // m_Origin = GameObject.Find("Main Camera");
@@ -48,38 +51,38 @@ public class VRCameraArray : MonoBehaviour
         //m_Array = GameObject.Find("Array");
         Vector3 originPos = m_Origin.transform.localPosition;
         // Quaternion originRot = m_Origin.transform.localRotation;
-        float elementalRectWidth = elementalSize / pixelSize / m_Resolution[0];
-        float elementalRectHeight = elementalSize / pixelSize / m_Resolution[1];
-        float posYMin = -m_Pitch / 2;
-        float posYMax = posYMin + elementalSize;
-        for (int i = 0; i < m_Count[1]; i++)
+        float elementalRectWidth = imgWidth / pixelSize / m_Resolution[0];
+        float elementalRectHeight = imgWidth / pixelSize / m_Resolution[1];
+        float posYMin = -m_Pitch / 2 - (imgWidth - m_Pitch) * m_Count[1];
+        float posYMax = posYMin + imgWidth;
+        for (int i = -m_Count[1]; i < m_Count[1]; i++)
         {
-            float posXMin = -m_Pitch / 2;
-            float posXMax = posXMin + elementalSize;
-            for (int j = 0; j < m_Count[0]; j++)
+            float posXMin = -m_Pitch / 2 - (imgWidth - m_Pitch) * m_Count[0];
+            float posXMax = posXMin + imgWidth;
+            for (int j = -m_Count[0]; j < m_Count[0]; j++)
             {
-                CreatCamera(new Vector3(m_Pitch * (j + 0.5f), m_Pitch * (i + 0.5f), 0), new Rect(elementalRectWidth * j + 0.5f, elementalRectHeight * i + 0.5f, elementalRectWidth, elementalRectHeight), posXMin, posXMax, posYMin, posYMax);
-                CreatCamera(new Vector3(-m_Pitch * (j + 0.5f), m_Pitch * (i + 0.5f), 0), new Rect(-elementalRectWidth * (j + 1) + 0.5f, elementalRectHeight * i + 0.5f, elementalRectWidth, elementalRectHeight), -posXMax, -posXMin, posYMin, posYMax);
-                CreatCamera(new Vector3(m_Pitch * (j + 0.5f), -m_Pitch * (i + 0.5f), 0), new Rect(elementalRectWidth * j + 0.5f, -elementalRectHeight * (i + 1) + 0.5f, elementalRectWidth, elementalRectHeight), posXMin, posXMax, -posYMax, -posYMin);
-                CreatCamera(new Vector3(-m_Pitch * (j + 0.5f), -m_Pitch * (i + 0.5f), 0), new Rect(-elementalRectWidth * (j + 1) + 0.5f, -elementalRectHeight * (i + 1) + 0.5f, elementalRectWidth, elementalRectHeight), -posXMax, -posXMin, -posYMax, -posYMin);
-                posXMin += elementalSize - m_Pitch;
-                posXMax += elementalSize - m_Pitch;
+                CreateCamera(new Vector3(m_Pitch * (j + 0.5f), m_Pitch * (i + 0.5f), 0), new Rect(elementalRectWidth * j + 0.5f, elementalRectHeight * i + 0.5f, elementalRectWidth, elementalRectHeight), posXMin, posXMax, posYMin, posYMax);
+                // CreatCamera(new Vector3(-m_Pitch * (j + 0.5f), m_Pitch * (i + 0.5f), 0), new Rect(-elementalRectWidth * (j + 1) + 0.5f, elementalRectHeight * i + 0.5f, elementalRectWidth, elementalRectHeight), -posXMax, -posXMin, posYMin, posYMax);
+                // CreatCamera(new Vector3(m_Pitch * (j + 0.5f), -m_Pitch * (i + 0.5f), 0), new Rect(elementalRectWidth * j + 0.5f, -elementalRectHeight * (i + 1) + 0.5f, elementalRectWidth, elementalRectHeight), posXMin, posXMax, -posYMax, -posYMin);
+                // CreatCamera(new Vector3(-m_Pitch * (j + 0.5f), -m_Pitch * (i + 0.5f), 0), new Rect(-elementalRectWidth * (j + 1) + 0.5f, -elementalRectHeight * (i + 1) + 0.5f, elementalRectWidth, elementalRectHeight), -posXMax, -posXMin, -posYMax, -posYMin);
+                posXMin += imgWidth - m_Pitch;
+                posXMax += imgWidth - m_Pitch;
             }
-            posYMin += elementalSize - m_Pitch;
-            posYMax += elementalSize - m_Pitch;
+            posYMin += imgWidth - m_Pitch;
+            posYMax += imgWidth - m_Pitch;
         }
         m_Origin.SetActive(false);
     }
 
-    GameObject CreatCamera(Vector3 position, Rect spectRect, float xMin, float xMax, float yMin, float yMax)
+    GameObject CreateCamera(Vector3 position, Rect spectRect, float xMin, float xMax, float yMin, float yMax)
     {
         GameObject newCamera = Instantiate(m_Origin);
         newCamera.transform.parent = transform;
         newCamera.transform.localPosition = position;
         newCamera.GetComponent<Camera>().rect = spectRect;
         tempMatrix = newCamera.GetComponent<Camera>().projectionMatrix;
-        tempMatrix.m02 = (xMax + xMin) / elementalSize;
-        tempMatrix.m12 = (yMax + yMin) / elementalSize;
+        tempMatrix.m02 = (xMax + xMin) / imgWidth;
+        tempMatrix.m12 = (yMax + yMin) / imgWidth;
         newCamera.GetComponent<Camera>().projectionMatrix = tempMatrix;
         return newCamera;
     }

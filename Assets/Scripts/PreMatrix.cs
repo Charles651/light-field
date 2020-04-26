@@ -20,7 +20,7 @@ public class PreMatrix : MonoBehaviour {
     // Update is called once per frame
     void LateUpdate () {
         //originalProjection = camera.projectionMatrix;
-        camera.worldToCameraMatrix = matrixW2C;
+        // camera.worldToCameraMatrix = matrixW2C;
         camera.projectionMatrix = matrixProj;
     }
     //void LateUpdate()
